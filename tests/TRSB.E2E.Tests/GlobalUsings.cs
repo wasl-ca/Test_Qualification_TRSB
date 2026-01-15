@@ -14,3 +14,4 @@ global using TRSB.Domain.Interfaces;
 global using TRSB.Application.Users.Commands;
 global using TRSB.Application.Common;
 global using MediatR;
+global using System.Text.Json;

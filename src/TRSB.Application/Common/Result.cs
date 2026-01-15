@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TRSB.Application.Common;
 public class Result<T>
 {
@@ -5,6 +7,8 @@ public class Result<T>
     public T? Value { get; }
     public string? Error { get; }
 
+    private Result() { }
+    [JsonConstructor]
     private Result(bool isSuccess, T? value, string? error)
     {
         IsSuccess = isSuccess;
