@@ -1,0 +1,51 @@
+@model UpdateProfileViewModel 
+@{
+    ViewData["Title"] = "Modifier mon profil";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+
+                <h4 class="card-title mb-4">Modifier mon profil</h4>
+
+                <form method="post">
+                    <!-- Lecture seule -->
+                    <div class="mb-3">
+                        <label class="form-label">Nom d’utilisateur</label>
+                        <input class="form-control" value="@Model.Username" disabled />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Courriel</label>
+                        <input class="form-control" value="@Model.Email" disabled />
+                    </div>
+
+                    <!-- Modifiable -->
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Nouveau mot de passe</label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label">Confirmer le mot de passe</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success me-2">Sauvegarder</button>
+                    <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

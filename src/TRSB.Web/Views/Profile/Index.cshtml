@@ -1,0 +1,26 @@
+@model TRSB.Web.Models.ProfileViewModel
+@{
+    ViewData["Title"] = "Profil";
+}
+<h2>Profil utilisateur</h2>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @Html.ValidationSummary()
+    </div>
+}
+else if (Model != null)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Informations personnelles</h5>
+            <p class="card-text"><strong>Nom d’usager:</strong> @Model.Username</p>
+            <p class="card-text"><strong>Courriel:</strong> @Model.Email</p>
+            <p class="card-text"><strong>Nom :</strong> @Model.Name</p>
+        </div>
+    </div>
+}
+else
+{   
+    <p>Chargement du profil...</p>
+}

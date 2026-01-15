@@ -1,0 +1,9 @@
+global using Xunit;
+global using System.Security.Claims;
+global using MediatR;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using Moq;
+global using TRSB.Application.Common;
+global using TRSB.Application.Users.Commands;
+global using TRSB.Application.Users.Queries;

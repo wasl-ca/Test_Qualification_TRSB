@@ -1,0 +1,14 @@
+global using Xunit;
+global using Microsoft.EntityFrameworkCore;
+global using TRSB.Infrastructure.Data;
+global using TRSB.Domain.Entities;
+global using TRSB.Domain.ValueObjects;
+global using Moq;
+global using TRSB.Application.Tests;
+global using TRSB.Application.Users.Commands;
+global using TRSB.Application.Users.Handlers;
+global using TRSB.Domain.Interfaces;
+global using TRSB.Infrastructure.Repositories;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.AspNetCore.Identity;
+global using TRSB.Application.Users.Queries;
