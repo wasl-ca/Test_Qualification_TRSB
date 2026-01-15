@@ -1,3 +1,4 @@
+@model TRSB.Web.Models.RegisterViewModel
 @{
     ViewData["Title"] = "Créer un compte";
 }
@@ -13,22 +14,25 @@
                 </div>
             }
 
-            <form method="post" class="card p-4 shadow-sm">
+            <form method="post" asp-action="Register" class="card p-4 shadow-sm">
                 <div class="mb-3">
-                    <label class="form-label">Courriel</label>
-                    <input name="email" type="email" class="form-control" required />
+                    <label asp-for="Email" class="form-label">Courriel</label>
+                    <input name="email" type="email" asp-for="Email" class="form-control" required />
                 </div>      
                 <div class="mb-3">
-                    <label class="form-label">Nom complet</label>
-                    <input name="name" class="form-control" required />
+                    <label asp-for="Name" class="form-label">Nom complet</label>
+                    <input name="name" asp-for="Name" class="form-control" required />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Mot de passe</label>
-                    <input name="password" type="password" class="form-control" required />
+                    <label asp-for="Username" class="form-label">Nom d’usager</label>
+                    <input name="username" asp-for="Username" class="form-control" required />
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Mot de passe</label>
+                    <input name="password" type="password" asp-for="Password" class="form-control" required />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Confirmer le mot de passe</label>
-                    <input name="confirmPassword" type="password" class="form-control" required />
+                    <label asp-for="ConfirmPassword" class="form-label">Confirmer le mot de passe</label>
+                    <input name="confirmPassword" type="password" asp-for="ConfirmPassword" class="form-control" required />
                 </div>  
                 <button class="btn btn-primary w-100">S'inscrire</button>
                

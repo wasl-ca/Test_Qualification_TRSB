@@ -20,6 +20,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateUserCommand command)
     {
+       
         var result = await _mediator.Send(command);
         return result.IsSuccess ? Ok(new { UserId = result.Value }) : BadRequest(result.Error);
     }

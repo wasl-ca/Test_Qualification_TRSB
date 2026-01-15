@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using TRSB.Web.Models;
 using TRSB.Web.Services.Interfaces;
@@ -23,15 +24,10 @@ public class AccountController : Controller
         var result = await _auth.Login(model);
         if (!result.IsSuccess)
         {
+            ViewBag.Error = result.Error!;
             ModelState.AddModelError(string.Empty, result.Error!);
             return View(model);
         }
-
-        HttpContext.Response.Cookies.Append(
-         "access_token",
-         result.Value!,
-         new CookieOptions { HttpOnly = true }
-        );
 
         return RedirectToAction("Index", "Profile");
     }
@@ -49,6 +45,7 @@ public class AccountController : Controller
         var result = await _auth.Register(model);
         if (!result.IsSuccess)
         {
+            ViewBag.Error = result.Error!;
             ModelState.AddModelError(string.Empty, result.Error!);
             return View("Register", model);
         }

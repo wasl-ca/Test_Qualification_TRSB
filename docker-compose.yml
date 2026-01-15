@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: trsb-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=VotreMotDePasse123!
+      - MSSQL_PID=Express
+    ports:
+      - "1434:1434"
+    volumes: 
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - trsb-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "VotreMotDePasse123!" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # API TRSB
+  trsb-api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: trsb-api
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "8080:80"
+    depends_on:
+      sqlserver: 
+        condition: service_healthy
+    networks:
+      - trsb-network
+    restart: unless-stopped
+
+  # Web TRSB (Interface utilisateur)
+  trsb-web:
+    build: 
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: trsb-web
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - Api__BaseUrl=http://trsb-api:80
+    ports:
+      - "8081:80"
+    depends_on:
+      - trsb-api
+    networks:
+      - trsb-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data: 
+
+networks:
+  trsb-network:
+    driver: bridge

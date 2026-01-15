@@ -9,6 +9,12 @@
             <div class="card-body">
 
                 <h4 class="card-title mb-4">Modifier mon profil</h4>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        @Html.ValidationSummary()
+                    </div>
+                }
 
                 <form method="post">
                     <!-- Lecture seule -->

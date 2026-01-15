@@ -1,3 +1,16 @@
 global using Xunit;
+global using FluentAssertions;
 global using Microsoft.AspNetCore.Mvc.Testing;
 global using Microsoft.AspNetCore.Hosting;
+global using System.Net.Http.Json;
+global using System.Net.Http.Headers;
+global using Microsoft.Extensions.DependencyInjection;
+global using TRSB.Infrastructure.Data;
+global using Microsoft.EntityFrameworkCore;
+global using System.Linq;
+global using TRSB.Domain.Entities;
+global using TRSB.Domain.ValueObjects;
+global using TRSB.Domain.Interfaces;
+global using TRSB.Application.Users.Commands;
+global using TRSB.Application.Common;
+global using MediatR;

@@ -53,9 +53,6 @@ appsettings.Development.json
 # Entity Framework
 Migrations/
 
-# environment variables file
-.env
-
 
 # IDE specific files
 .DS_Store
@@ -81,3 +78,18 @@ package-lock.json
 # OS files
 .DS_Store
 Desktop.ini
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Keep example files
+! .env.example
+
+# Certificates
+certs/
+*. pfx
+*. crt
+*.key
+*. pem

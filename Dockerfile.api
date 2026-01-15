@@ -1,0 +1,33 @@
+# Étape de build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copier les fichiers de projet
+COPY ["src/TRSB.Api/TRSB.Api.csproj", "src/TRSB.Api/"]
+COPY ["src/TRSB.Application/TRSB.Application.csproj", "src/TRSB.Application/"]
+COPY ["src/TRSB.Domain/TRSB.Domain.csproj", "src/TRSB.Domain/"]
+COPY ["src/TRSB.Infrastructure/TRSB.Infrastructure.csproj", "src/TRSB.Infrastructure/"]
+
+# Restaurer les dépendances
+RUN dotnet restore "src/TRSB.Api/TRSB.Api.csproj"
+
+# Copier tout le code source
+COPY . . 
+
+# Build
+WORKDIR "/src/src/TRSB.Api"
+RUN dotnet build "TRSB.Api.csproj" -c Release -o /app/build
+
+# Publish
+FROM build AS publish
+RUN dotnet publish "TRSB.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Étape finale - runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+# Exposer les ports HTTP et HTTPS
+EXPOSE 80
+EXPOSE 443
+
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "TRSB.Api.dll"]

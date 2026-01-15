@@ -19,7 +19,6 @@ public class ProfileController: Controller
         return View(profile.Value);
     }
 
-    [HttpPost]
     public IActionResult Edit(ProfileViewModel model)
     {   
         var UpdateModel = new UpdateProfileViewModel
@@ -43,9 +42,9 @@ public class ProfileController: Controller
         var result = await _profile.UpdateProfileAsync(model);
         if (!result.IsSuccess)
         {
-
+            ViewBag.Error = result.Error!;
             ModelState.AddModelError(string.Empty, result.Error!);
-            return View("Index", model);
+            return View("Edit", model);
         }
 
         TempData["SuccessMessage"] = "Profil mis à jour avec succès";

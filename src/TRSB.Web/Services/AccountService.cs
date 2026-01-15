@@ -1,5 +1,8 @@
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using TRSB.Application.Common;
 using TRSB.Web.Models;
 using TRSB.Web.Services.Interfaces;
@@ -35,6 +38,21 @@ public class AccountService : IAccountService
             .RootElement.GetProperty("token").GetString();
         _logger.LogInformation("Utilisateur {UsernameOrEmail} connecté avec succès",
             model.UsernameOrEmail);
+        _context.HttpContext!.Response.Cookies.Append(
+         "access_token",
+         token!,
+         new CookieOptions { HttpOnly = true }
+        );
+        var claims = new List<Claim>
+        {
+            new Claim("JWT", token!)
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        await _context.HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal);
         return Result<string?>.Success(token);
     }
 
@@ -49,12 +67,16 @@ public class AccountService : IAccountService
 
         var response = await _http.PostAsJsonAsync(
             "api/users/create",
-            model);
+            new {
+                model.Username,
+                model.Name,
+                model.Email,
+                model.Password
+            });
 
         if (!response.IsSuccessStatusCode)
         {
             var error = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("Registration error: " + await response.Content.ReadFromJsonAsync<object>());
             _logger.LogWarning("Echec d'enregistrement pour {Email}: {StatusCode} - {Error}",
                 model.Email, response.StatusCode, error);
             return Result<bool>.Failure($"Erreur lors de l'enregistrement: {error}");

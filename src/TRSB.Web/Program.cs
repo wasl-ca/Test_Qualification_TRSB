@@ -8,7 +8,6 @@ var envPath = Path.Combine(rootPath, ".env");
 Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
