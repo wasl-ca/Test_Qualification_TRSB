@@ -21,9 +21,6 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <li class="nav-item">
-                            <a class="nav-link" href="/Profile">Profil</a>
-                        </li>
-                        <li class="nav-item">
                             <form method="post" asp-controller="Account" asp-action="Logout">
                                 <button class="btn btn-link nav-link">Déconnexion</button>
                             </form>

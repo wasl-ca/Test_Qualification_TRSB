@@ -19,13 +19,14 @@ public class ProfileController: Controller
         return View(profile.Value);
     }
 
-    public IActionResult Edit(ProfileViewModel model)
-    {   
+    public async Task<IActionResult> Edit()
+    {
+        var profile = await _profile.GetProfileAsync();
         var UpdateModel = new UpdateProfileViewModel
         {
-            Username = model.Username,
-            Name = model.Name,
-            Email = model.Email,
+            Username = profile.Value!.Username,
+            Name = profile.Value.Name,
+            Email = profile.Value.Email,
             Password = string.Empty,
             ConfirmPassword = string.Empty
         };

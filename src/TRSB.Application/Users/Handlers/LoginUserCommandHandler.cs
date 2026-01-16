@@ -47,13 +47,25 @@ namespace TRSB.Application.Users.Handlers
             // Générer un JWT simple
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Jwt:SigningKey") ?? throw new InvalidOperationException("JWT Key not configured"));
+            var issuer = _configuration.GetValue<string>("Jwt:Issuer") ?? throw new InvalidOperationException("JWT Issuer not configured");
+            var audience = _configuration.GetValue<string>("Jwt:Audience") ?? throw new InvalidOperationException("JWT Audience not configured");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow. ToUnixTimeSeconds().ToString()),
+                    
+                    // ASP.NET Core Identity claims
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.Username)
+                    new Claim(ClaimTypes.Name, user.Username ??  string.Empty),
+                    new Claim(ClaimTypes.Email, user.EmailValue ?? string. Empty),
                 }),
+                Issuer = issuer,
+                Audience = audience,
+                NotBefore = DateTime.UtcNow,
+                IssuedAt = DateTime.UtcNow,
                 Expires = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("Jwt:ExpireMinutes") > 0 ? _configuration.GetValue<int>("Jwt:ExpireMinutes") : 60),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

@@ -148,7 +148,7 @@ public class AccountService : IAccountService
     }
     public async Task<Result<ProfileViewModel?>> GetProfileAsync()
     {
-        setAuthenticated();
+        setHeaders();
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         var response = await _http.GetAsync("api/users/profile", cts.Token);
         if (!response.IsSuccessStatusCode)
@@ -162,7 +162,7 @@ public class AccountService : IAccountService
 
     public async Task<Result<bool>> UpdateProfileAsync(UpdateProfileViewModel model)
     {
-        setAuthenticated();
+        setHeaders();
 
         var response = await _http.PutAsJsonAsync("api/users/profile", model);
 
@@ -177,7 +177,7 @@ public class AccountService : IAccountService
         return Result<bool>.Success(true);
     }
 
-    private void setAuthenticated()
+    private void setHeaders()
     {
         var token = _context.HttpContext!.Request.Cookies["access_token"];
         if (string.IsNullOrEmpty(token))
