@@ -572,7 +572,7 @@ Accédez à `/swagger` et testez interactivement.
 curl https://localhost:8443/health -k
 
 # Créer un compte
-curl -X POST https://localhost:8443/api/users/create -k \
+curl -X POST https://localhost:8443/api/users -k \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
