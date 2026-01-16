@@ -3,13 +3,8 @@
     ViewData["Title"] = "Profil";
 }
 <h2>Profil utilisateur</h2>
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["SuccessMessage"]
-    </div>
-}   
-else if (Model != null)
+
+@if (Model != null)
 {
     <div class="card">
         <div class="card-body">
@@ -23,5 +18,7 @@ else if (Model != null)
 }
 else
 {   
-    <p>Chargement du profil...</p>
+    <div class="alert alert-warning">
+        Profil non disponible. Veuillez réessayer plus tard.
+    </div>
 }

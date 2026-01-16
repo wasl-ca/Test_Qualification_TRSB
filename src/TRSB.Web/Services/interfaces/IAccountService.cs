@@ -6,7 +6,8 @@ namespace TRSB.Web.Services.Interfaces
 {
     public interface IAccountService
     {
-        Task<Result<string?>> Login(LoginViewModel model);
+        Task<Result<LoginResponse?>> Login(LoginViewModel model);
+        Task<Result<bool>> Logout();
         Task<Result<bool>> Register(RegisterViewModel model);
         Task<Result<ProfileViewModel?>> GetProfileAsync();
         Task<Result<bool>> UpdateProfileAsync(UpdateProfileViewModel model);

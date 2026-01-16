@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.Sqlite;
 using TRSB.Infrastructure.Data;
+using System.Runtime.Serialization;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
@@ -29,7 +30,16 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 options.EnableSensitiveDataLogging();
                 options.EnableDetailedErrors();
             });
-            
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = TestAuthHandler.AuthenticationScheme;
+                options.DefaultChallengeScheme = TestAuthHandler.AuthenticationScheme;
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                TestAuthHandler.AuthenticationScheme,
+                options => { });
+
             var serviceProvider = services.BuildServiceProvider();
             using (var scope = serviceProvider.CreateScope())
             {
@@ -38,7 +48,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
                 try
                 {
-                   
+
                     db.Database.EnsureCreated();
                     var tables = db.Database.SqlQueryRaw<string>(
                         "SELECT name FROM sqlite_master WHERE type='table'")
@@ -52,6 +62,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     throw;
                 }
             }
+        
         });
 
         builder.UseEnvironment("Testing");

@@ -54,9 +54,9 @@ public class AccountController : Controller
         return RedirectToAction("Login");
     }
 
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
-        HttpContext.Response.Cookies.Delete("access_token");
+        await _auth.Logout();
         return RedirectToAction("Login");
     }
 }

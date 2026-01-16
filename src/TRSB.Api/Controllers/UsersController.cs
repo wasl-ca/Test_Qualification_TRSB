@@ -36,8 +36,12 @@ public class UsersController : ControllerBase
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfile()
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var query = new GetUserProfileQuery(userId);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User ID not found in token.");
+        }
+        var query = new GetUserProfileQuery(Guid.Parse(userId));
         var result = await _mediator.Send(query);
         return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
     }

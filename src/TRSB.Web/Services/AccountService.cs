@@ -20,40 +20,101 @@ public class AccountService : IAccountService
         _logger = logger;
     }
 
-    public async Task<Result<string?>> Login(LoginViewModel model)
+    public async Task<Result<LoginResponse?>> Login(LoginViewModel model)
     {
         var response = await _http.PostAsJsonAsync(
             "api/users/login",
             model);
 
-        var json = await response.Content.ReadAsStringAsync();
+        var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogWarning("Echec de connexion pour {UsernameOrEmail}: {StatusCode}",
                 model.UsernameOrEmail, response.StatusCode);
-            return Result<string?>.Failure(json ?? "Identifiants invalides");
+            return Result<LoginResponse?>.Failure("Identifiants invalides");
         }
 
-        var token = JsonDocument.Parse(json)
-            .RootElement.GetProperty("token").GetString();
-        _logger.LogInformation("Utilisateur {UsernameOrEmail} connecté avec succès",
-            model.UsernameOrEmail);
         _context.HttpContext!.Response.Cookies.Append(
          "access_token",
-         token!,
-         new CookieOptions { HttpOnly = true }
+         loginResponse!.Token,
+         new CookieOptions
+         {
+             HttpOnly = true,
+             Secure = true,
+             SameSite = SameSiteMode.Strict,
+             Expires = DateTimeOffset.UtcNow.AddHours(24)
+         }
         );
         var claims = new List<Claim>
         {
-            new Claim("JWT", token!)
+            new Claim(ClaimTypes.NameIdentifier, loginResponse.UserId.ToString()),
+            new Claim("JWT", loginResponse.Token)
         };
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        if (!string.IsNullOrEmpty(loginResponse.Username))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, loginResponse.Username));
+        }
+
+        if (!string.IsNullOrEmpty(loginResponse.Email))
+        {
+            claims.Add(new Claim(ClaimTypes.Email, loginResponse.Email));
+        }
+
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
         var principal = new ClaimsPrincipal(identity);
-        await _context.HttpContext.SignInAsync(
+
+        await _context.HttpContext!.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
-        return Result<string?>.Success(token);
+            principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24),
+                AllowRefresh = true
+            });
+
+        _logger.LogInformation("Utilisateur {UsernameOrEmail} connecté avec succès", model.UsernameOrEmail);
+
+        return Result<LoginResponse?>.Success(loginResponse);
+    }
+
+    public async Task<Result<bool>> Logout()
+    {
+        var httpContext = _context.HttpContext;
+        if (httpContext == null)
+        {
+            _logger.LogError("HttpContext est null lors de la déconnexion");
+            return Result<bool>.Failure("Erreur de contexte");
+        }
+
+        try
+        {
+            httpContext.Response.Cookies.Delete("access_token", new CookieOptions
+            {
+                Path = "/",
+                Secure = true,
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict
+            });
+
+           
+            // ✅ 4. Déconnexion de la session Cookie Authentication
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            _logger.LogInformation("Utilisateur déconnecté avec succès");
+
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la déconnexion");
+            return Result<bool>.Failure("Erreur lors de la déconnexion");
+        }
     }
 
     public async Task<Result<bool>> Register(RegisterViewModel model)
@@ -66,7 +127,7 @@ public class AccountService : IAccountService
         }
 
         var response = await _http.PostAsJsonAsync(
-            "api/users/create",
+            "api/users",
             new {
                 model.Username,
                 model.Name,
@@ -88,14 +149,15 @@ public class AccountService : IAccountService
     public async Task<Result<ProfileViewModel?>> GetProfileAsync()
     {
         setAuthenticated();
-
-        var response = await _http.GetAsync("api/users/profile");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        var response = await _http.GetAsync("api/users/profile", cts.Token);
         if (!response.IsSuccessStatusCode)
             return Result<ProfileViewModel?>.Failure("Erreur lors de la récupération du profil");
 
-        var json = await response.Content.ReadAsStringAsync();
-        return Result<ProfileViewModel?>.Success(JsonSerializer.Deserialize<ProfileViewModel>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
+        var profile = await response.Content.ReadFromJsonAsync<ProfileViewModel>(
+                cancellationToken: cts.Token);
+        _logger.LogInformation("Profil utilisateur récupéré avec succès");
+        return Result<ProfileViewModel?>.Success(profile);
     }
 
     public async Task<Result<bool>> UpdateProfileAsync(UpdateProfileViewModel model)

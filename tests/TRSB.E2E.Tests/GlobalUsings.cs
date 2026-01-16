@@ -15,3 +15,4 @@ global using TRSB.Application.Users.Commands;
 global using TRSB.Application.Common;
 global using MediatR;
 global using System.Text.Json;
+global using Microsoft.AspNetCore.Authentication;
