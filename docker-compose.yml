@@ -10,7 +10,7 @@ services:
       - SA_PASSWORD=VotreMotDePasse123!
       - MSSQL_PID=Express
     ports:
-      - "1434:1434"
+      - "1433:1433"
     volumes: 
       - sqlserver-data:/var/opt/mssql
     networks:
